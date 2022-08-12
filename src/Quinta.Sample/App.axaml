@@ -1,0 +1,13 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:quinta="clr-namespace:Quinta;assembly=Quinta"
+             x:Class="Quinta.Sample.App">
+    <Application.DataTemplates>
+        <quinta:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme Mode="Light"/>
+        <StyleInclude Source="avares://Quinta/QuintaStyles.axaml" />
+    </Application.Styles>
+</Application>
