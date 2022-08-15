@@ -84,6 +84,7 @@ public class Shell : ReactiveObject, IShell
         }
 
         DockFactory.SetActiveDockable(dockable);
+        DockFactory.SetFocusedDockable(container, dockable);
     }
 
     private void AddClosingByRequest(IViewModel viewModel)
