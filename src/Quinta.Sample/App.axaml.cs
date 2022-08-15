@@ -32,7 +32,7 @@ namespace Quinta.Sample
                     options: new UiShowOptions { Title = "Start Page", CanClose = false });
 
                 shell.ShowTool<SampleToolViewModel>(new ViewRequest { ViewId = SampleToolView.SampleToolId });
-                shell.ShowTool<SampleToolViewModel>();
+                shell.ShowTool<SampleToolViewModel>(options: new UiShowOptions { Title = "Second Tools" });
             }
 
             base.OnFrameworkInitializationCompleted();
