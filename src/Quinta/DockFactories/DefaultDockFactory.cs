@@ -33,6 +33,8 @@ public class DefaultDockFactory : Factory
             Id = Tools,
             Title = Tools,
             ActiveDockable = null,
+            IsCollapsable = false,
+            Proportion = 0.25,
             VisibleDockables = CreateList<IDockable>(),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible
@@ -42,6 +44,7 @@ public class DefaultDockFactory : Factory
         {
             Id = Documents,
             Title = Documents,
+            IsCollapsable = false,
             Proportion = double.NaN,
             ActiveDockable = null,
             VisibleDockables = CreateList<IDockable>()
@@ -51,6 +54,7 @@ public class DefaultDockFactory : Factory
         {
             Id = MainLayout,
             Title = MainLayout,
+            IsCollapsable = false,
             Proportion = double.NaN,
             Orientation = Orientation.Horizontal,
             ActiveDockable = null,
