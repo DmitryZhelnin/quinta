@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
 using Dock.Model.Core;
+using Dock.Model.Core.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Quinta.DockFactories;
 using Quinta.Extensions;
@@ -19,6 +20,7 @@ public class Shell : ReactiveObject, IShell
 {
     [Reactive] public string Title { get; set; }
     [Reactive] public WindowIcon? Icon { get; set; }
+    [Reactive] public IViewModel ActiveViewModel { get; set; }
     public IServiceProvider ServiceProvider { get; set; }
     public IFactory DockFactory { get; set; }
     [Reactive] public IDock Layout { get; set; }
@@ -36,7 +38,17 @@ public class Shell : ReactiveObject, IShell
 
         var window = ServiceProvider.GetRequiredService<TStartWindow>();
         MainWindow = window as Window ?? throw new InvalidCastException($"{window.GetType()} is not a window");
+
         DockFactory = options?.DockFactory ?? new DefaultDockFactory(MainWindow.DataContext!);
+        Observable
+            .FromEventPattern<FocusedDockableChangedEventArgs>(
+                x => DockFactory.FocusedDockableChanged += x,
+                x => DockFactory.FocusedDockableChanged -= x)
+            .Subscribe(x =>
+            {
+                if (x.EventArgs.Dockable is IViewModel vm)
+                    ActiveViewModel = vm;
+            });
         Layout = DockFactory.CreateLayout() ?? throw new InvalidOperationException();
         DockFactory.InitLayout(Layout);
     }
