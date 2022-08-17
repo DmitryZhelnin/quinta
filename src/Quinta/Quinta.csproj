@@ -8,8 +8,8 @@
 
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="0.10.18" />
-      <PackageReference Include="Dock.Avalonia" Version="0.10.14" />
-      <PackageReference Include="Dock.Model.ReactiveUI" Version="0.10.14" />
+      <PackageReference Include="Dock.Avalonia" Version="0.10.18" />
+      <PackageReference Include="Dock.Model.ReactiveUI" Version="0.10.18" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
       <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
     </ItemGroup>
