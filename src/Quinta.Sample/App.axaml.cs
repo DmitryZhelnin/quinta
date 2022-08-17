@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Quinta.Interfaces;
 using Quinta.Sample.ViewModels;
 using Quinta.Sample.Views;
 using Quinta.ShowOptions;
@@ -24,7 +23,7 @@ namespace Quinta.Sample
                     Title = "Quinta Sample",
                     IconSource = "avares://Quinta.Sample/Assets/avalonia-logo.ico"
                 };
-                var shell = UiStarter.Start<IRootWindow>(new Bootstrapper(), options);
+                var shell = UiStarter.Start<MainWindow>(new Bootstrapper(), options);
                 desktop.MainWindow = shell.MainWindow;
                 
                 shell.ShowView<StartPageViewModel>(

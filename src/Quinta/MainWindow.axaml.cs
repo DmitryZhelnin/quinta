@@ -5,7 +5,7 @@ using Quinta.Interfaces;
 
 namespace Quinta;
 
-public partial class MainWindow : Window, IRootWindow
+public partial class MainWindow : Window
 {
     public MainWindow()
     {
