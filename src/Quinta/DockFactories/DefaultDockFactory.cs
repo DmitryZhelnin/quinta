@@ -34,6 +34,7 @@ public class DefaultDockFactory : Factory
             Title = Tools,
             ActiveDockable = null,
             IsCollapsable = false,
+            CanFloat = false,
             Proportion = 0.25,
             VisibleDockables = CreateList<IDockable>(),
             Alignment = Alignment.Left,
