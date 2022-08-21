@@ -31,7 +31,7 @@ namespace Quinta.Sample
 
                 shell.ShowView<StartPageViewModel>(
                     viewRequest: new ViewRequest { ViewId = StartPageView.StartPageId },
-                    options: new UiShowOptions { Title = "Start Page", CanClose = false });
+                    options: new UiShowOptions { Title = "Start Page", CanClose = false, CanFloat = false});
 
                 shell.ShowTool<SampleToolViewModel>(new ViewRequest { ViewId = SampleToolView.SampleToolId });
                 shell.ShowTool<SampleToolViewModel>(options: new UiShowOptions { Title = "Second Tools" });
