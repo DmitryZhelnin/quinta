@@ -46,6 +46,19 @@ namespace Quinta.Sample
                     commandName: "E_xit",
                     command: ReactiveCommand.Create(() => { Environment.Exit(0); }),
                     hotKey: KeyGesture.Parse("Ctrl+Q"));
+
+                shell.MainMenuService.AddGlobalCommand(
+                    commandPath: "View",
+                    commandName: "Show Dialog",
+                    command: ReactiveCommand.CreateFromTask(_ =>
+                    {
+                        var dialogOptions = new UiShowDialogOptions
+                        {
+                            Title = "Sample Dialog",
+                            IconSource = "avares://Quinta.Sample/Assets/avalonia-logo.ico"
+                        };
+                        return shell.DialogService.ShowDialogAsync<SampleDialogViewModel>(dialogOptions);
+                    }));
             }
 
             base.OnFrameworkInitializationCompleted();

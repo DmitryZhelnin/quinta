@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Quinta.Dialogs;
 using Quinta.Interfaces;
 using Quinta.MainMenu;
 
@@ -20,6 +21,7 @@ public abstract class BootstrapperBase : IBootstrapper
 
         services.AddSingleton<IShell, Shell>();
         services.AddSingleton<IMainMenuService, MainMenuService>();
+        services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<MainWindow>();
 
         ConfigureContainer(services);

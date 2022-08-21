@@ -18,9 +18,10 @@ namespace Quinta;
 
 public class Shell : ReactiveObject, IShell
 {
-    public Shell(IMainMenuService mainMenuService)
+    public Shell(IMainMenuService mainMenuService, IDialogService dialogService)
     {
         MainMenuService = mainMenuService;
+        DialogService = dialogService;
     }
 
     [Reactive] public string Title { get; set; }
@@ -31,6 +32,7 @@ public class Shell : ReactiveObject, IShell
     [Reactive] public IDock Layout { get; set; }
     public Window MainWindow { get; set; }
     public IMainMenuService MainMenuService { get; }
+    public IDialogService DialogService { get; }
 
     public void ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class
     {

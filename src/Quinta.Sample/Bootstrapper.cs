@@ -9,6 +9,7 @@ public class Bootstrapper : BootstrapperBase
     {
         services.AddSingleton<StartPageViewModel>();
         services.AddTransient<SampleToolViewModel>();
+        services.AddTransient<SampleDialogViewModel>();
         base.ConfigureContainer(services);
     }
 }
