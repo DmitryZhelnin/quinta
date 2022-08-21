@@ -13,7 +13,7 @@
     <Grid RowDefinitions="Auto, *">
         <StackPanel Spacing="4" Grid.Row="0" Orientation="Horizontal">
             <Button  Command="{Binding ChangeTitle}">Change Title</Button>
-            <Button  Command="{Binding CloseByRequest}">Close</Button>
+            <Button  Command="{Binding Close}">Close</Button>
         </StackPanel>
         <TextBlock Grid.Row="1" Text="{Binding Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>

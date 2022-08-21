@@ -105,17 +105,13 @@ public class Shell : ReactiveObject, IShell
         switch (viewModel)
         {
             case DocumentViewModelBase documentViewModel:
-                Observable
-                    .FromEventPattern(x => documentViewModel.CloseQuery += x,
-                        x => documentViewModel.CloseQuery -= x)
-                    .Subscribe(x => DockFactory.CloseDockable(viewModel))
+                documentViewModel.Close
+                    .Subscribe(_ => DockFactory.CloseDockable(viewModel))
                     .DisposeWith(documentViewModel.Disposables);
                 break;
             case ToolViewModelBase toolViewModel:
-                Observable
-                    .FromEventPattern(x => toolViewModel.CloseQuery += x,
-                        x => toolViewModel.CloseQuery -= x)
-                    .Subscribe(x => DockFactory.CloseDockable(viewModel))
+                toolViewModel.Close
+                    .Subscribe(_ => DockFactory.CloseDockable(viewModel))
                     .DisposeWith(toolViewModel.Disposables);
                 break;
         }

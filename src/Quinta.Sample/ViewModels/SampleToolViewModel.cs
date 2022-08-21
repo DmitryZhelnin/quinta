@@ -12,7 +12,6 @@ public class SampleToolViewModel : ToolViewModelBase, IConfigurableViewModel
         Title = "Sample Tool";
         CanClose = true;
         ChangeTitle = ReactiveCommand.Create(() => { Title = "Changed Title"; });
-        CloseByRequest = ReactiveCommand.Create(Close);
     }
 
     public string Text => "This is Sample Tool";
@@ -23,5 +22,4 @@ public class SampleToolViewModel : ToolViewModelBase, IConfigurableViewModel
     }
 
     public ReactiveCommand<Unit, Unit> ChangeTitle { get; }
-    public ReactiveCommand<Unit, Unit> CloseByRequest { get; }
 }

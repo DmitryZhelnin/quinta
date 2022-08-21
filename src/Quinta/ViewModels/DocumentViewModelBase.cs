@@ -1,16 +1,20 @@
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Dock.Model.ReactiveUI.Controls;
+using ReactiveUI;
 
 namespace Quinta.ViewModels;
 
 public class DocumentViewModelBase : Document, IViewModel
 {
-    internal event EventHandler? CloseQuery;
-
-    public void Close()
+    public DocumentViewModelBase()
     {
-        CloseQuery?.Invoke(this, EventArgs.Empty);
+        var canClose = this.WhenAnyValue(x => x.CanClose).Select(x => x);
+        Close = ReactiveCommand.Create(() => { }, canClose).DisposeWith(Disposables);
     }
+
+    public ReactiveCommand<Unit, Unit> Close { get; }
 
     public override bool OnClose()
     {
@@ -21,7 +25,6 @@ public class DocumentViewModelBase : Document, IViewModel
     protected virtual void DisposeInternals()
     {
         Disposables.Clear();
-        CloseQuery = null;
     }
     
     protected internal CompositeDisposable Disposables { get; }  = new();
