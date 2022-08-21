@@ -32,7 +32,7 @@ public class Shell : ReactiveObject, IShell
         if (options?.IconSource is not null)
         {
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var iconStream = assets.Open(new Uri(options.IconSource));
+            var iconStream = assets!.Open(new Uri(options.IconSource));
             Icon = new WindowIcon(iconStream);
         }
 
@@ -90,7 +90,7 @@ public class Shell : ReactiveObject, IShell
 
             DockFactory.AddDockable(container, viewModel);
 
-            AddClosingByRequest(viewModel);
+            AddClosingByCommand(viewModel);
             // InitializeView(view, viewRequest);
             dockable = viewModel;
         }
@@ -99,21 +99,15 @@ public class Shell : ReactiveObject, IShell
         DockFactory.SetFocusedDockable(container, dockable);
     }
 
-    private void AddClosingByRequest(IViewModel viewModel)
+    private void AddClosingByCommand(IViewModel viewModel)
     {
-        //TODO: base closable type
-        switch (viewModel)
+        if (viewModel is not ViewModelBase vmb)
         {
-            case DocumentViewModelBase documentViewModel:
-                documentViewModel.Close
-                    .Subscribe(_ => DockFactory.CloseDockable(viewModel))
-                    .DisposeWith(documentViewModel.Disposables);
-                break;
-            case ToolViewModelBase toolViewModel:
-                toolViewModel.Close
-                    .Subscribe(_ => DockFactory.CloseDockable(viewModel))
-                    .DisposeWith(toolViewModel.Disposables);
-                break;
+            return;
         }
+
+        vmb.Close
+            .Subscribe(_ => DockFactory.CloseDockable(vmb))
+            .DisposeWith(vmb.Disposables);
     }
 }
