@@ -19,6 +19,8 @@ public interface IShell
     
     Window MainWindow { get; set; }
 
+    IMainMenuService MainMenuService { get; }
+
     void ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class;
 
     void ShowView<TViewModel>(

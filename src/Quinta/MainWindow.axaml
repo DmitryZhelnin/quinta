@@ -12,6 +12,9 @@
         <quinta:Shell />
     </Design.DataContext>
 
-    <DockControl Layout="{Binding Layout}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    <Grid RowDefinitions="Auto, *">
+        <Menu Grid.Row="0" Items="{Binding MainMenuService.MenuItems}" IsVisible="{Binding !!MainMenuService.MenuItems.Count}" />
+        <DockControl Grid.Row="1" Layout="{Binding Layout}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    </Grid>
 
 </Window>

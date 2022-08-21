@@ -18,13 +18,19 @@ namespace Quinta;
 
 public class Shell : ReactiveObject, IShell
 {
+    public Shell(IMainMenuService mainMenuService)
+    {
+        MainMenuService = mainMenuService;
+    }
+
     [Reactive] public string Title { get; set; }
     [Reactive] public WindowIcon? Icon { get; set; }
-    [Reactive] public IViewModel ActiveViewModel { get; set; }
+    [Reactive] public IViewModel? ActiveViewModel { get; set; }
     public IServiceProvider ServiceProvider { get; set; }
     public IFactory DockFactory { get; set; }
     [Reactive] public IDock Layout { get; set; }
     public Window MainWindow { get; set; }
+    public IMainMenuService MainMenuService { get; }
 
     public void ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class
     {
