@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Quinta.DialogWindow"
         WindowStartupLocation="CenterOwner"
-        Title="DialogWindow" SizeToContent="WidthAndHeight">
+        Title="DialogWindow"
+        SizeToContent="WidthAndHeight">
     <ContentPresenter Content="{Binding}" />
 </Window>
