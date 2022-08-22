@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Windows.Input;
 using Avalonia.Input;
 using DynamicData;
+using Microsoft.Extensions.DependencyInjection;
 using Quinta.Interfaces;
 using ReactiveUI;
 
@@ -10,11 +11,13 @@ namespace Quinta.MainMenu;
 
 public class MainMenuService : IMainMenuService
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly SourceCache<MenuItemViewModel, string> _menuItemsSource = new(vm => vm.Header);
     private readonly ReadOnlyObservableCollection<MenuItemViewModel> _menuItems;
 
-    public MainMenuService()
+    public MainMenuService(IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
         _menuItemsSource
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -24,8 +27,6 @@ public class MainMenuService : IMainMenuService
 
     public ReadOnlyObservableCollection<MenuItemViewModel> MenuItems => _menuItems;
 
-
-    // TODO: HotKey bug https://github.com/AvaloniaUI/Avalonia/issues/2441
     public void AddGlobalCommand(string commandPath, string commandName, ICommand command, KeyGesture? hotKey = null)
     {
         var parent = ProcessCommandPath(commandPath);
@@ -36,7 +37,13 @@ public class MainMenuService : IMainMenuService
 
         var item = CreateMenuItem(commandName, parent);
         item.Command = command;
-        item.HotKey = hotKey;
+        if (hotKey is not null)
+        {
+            item.InputGesture = hotKey;
+            var keyBindingService = _serviceProvider.GetRequiredService<IGlobalKeyBindingService>();
+            keyBindingService.RemoveKeyBinding(hotKey);
+            keyBindingService.AddKeyBinding(hotKey, command);
+        }
     }
 
     private MenuItemViewModel ProcessCommandPath(string commandPath)

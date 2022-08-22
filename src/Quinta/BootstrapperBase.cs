@@ -23,6 +23,7 @@ public abstract class BootstrapperBase : IBootstrapper
         services.AddSingleton<IMainMenuService, MainMenuService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<MainWindow>();
+        services.AddSingleton<IGlobalKeyBindingService>(provider => provider.GetRequiredService<MainWindow>());
 
         ConfigureContainer(services);
 

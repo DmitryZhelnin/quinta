@@ -12,5 +12,5 @@ public class MenuItemViewModel : ReactiveObject
     [Reactive] public ICommand? Command { get; set; }
     [Reactive] public object? CommandParameter { get; set; }
     public ObservableCollection<MenuItemViewModel> Items { get; } = new();
-    [Reactive] public KeyGesture? HotKey { get; set; }
+    [Reactive] public KeyGesture? InputGesture { get; set; }
 }

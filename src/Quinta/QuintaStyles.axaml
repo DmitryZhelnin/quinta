@@ -7,7 +7,6 @@
         <Setter Property="Items" Value="{Binding Items}" />
         <Setter Property="Command" Value="{Binding Command}" />
         <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
-        <Setter Property="HotKey" Value="{Binding HotKey}" />
-        <Setter Property="InputGesture" Value="{Binding HotKey}" />
+        <Setter Property="InputGesture" Value="{Binding InputGesture}" />
     </Style>
 </Styles>
