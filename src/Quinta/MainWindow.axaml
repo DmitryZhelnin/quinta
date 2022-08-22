@@ -5,6 +5,7 @@
         xmlns:quinta="clr-namespace:Quinta"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Quinta.MainWindow"
+        WindowStartupLocation="CenterScreen"
         Icon="{Binding Icon}"
         Title="{Binding Title}">
 
