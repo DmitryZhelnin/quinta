@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Quinta.Sample.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Quinta.Sample.Views.SampleDialogView"
-             MinWidth="640" MinHeight="480">
+             x:Class="Quinta.Sample.Views.SampleDialogView">
     <Design.DataContext>
         <viewModels:SampleDialogViewModel/>
     </Design.DataContext>

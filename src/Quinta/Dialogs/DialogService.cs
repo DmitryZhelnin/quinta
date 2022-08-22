@@ -26,8 +26,16 @@ public class DialogService : IDialogService
         var dialog = new DialogWindow
         {
             Title = options.Title,
+            SizeToContent = options.SizeToContent,
+            ShowInTaskbar = options.ShowInTaskbar,
             DataContext = viewModel
         };
+
+        if (options.SizeToContent == SizeToContent.Manual)
+        {
+            dialog.Width = options.Width;
+            dialog.Height = options.Height;
+        }
 
         viewModel.Close
             .Subscribe(_ => dialog.Close())

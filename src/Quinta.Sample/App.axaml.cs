@@ -55,7 +55,8 @@ namespace Quinta.Sample
                         var dialogOptions = new UiShowDialogOptions
                         {
                             Title = "Sample Dialog",
-                            IconSource = "avares://Quinta.Sample/Assets/avalonia-logo.ico"
+                            IconSource = "avares://Quinta.Sample/Assets/avalonia-logo.ico",
+                            ShowInTaskbar = false
                         };
                         return shell.DialogService.ShowDialogAsync<SampleDialogViewModel>(dialogOptions);
                     }));
