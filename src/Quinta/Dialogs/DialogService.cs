@@ -21,8 +21,13 @@ public class DialogService : IDialogService
 
     public async Task ShowDialogAsync<TViewModel>(UiShowDialogOptions options) where TViewModel : IDialogViewModel
     {
-        var disposable = new CompositeDisposable();
         var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
+        await ShowDialogAsync(viewModel, options);
+    }
+
+    public async Task ShowDialogAsync<TViewModel>(TViewModel viewModel, UiShowDialogOptions options) where TViewModel : IDialogViewModel
+    {
+        var disposable = new CompositeDisposable();
         var dialog = new DialogWindow
         {
             Title = options.Title,
@@ -45,7 +50,7 @@ public class DialogService : IDialogService
             .FromEventPattern(x => dialog.Closed += x, x => dialog.Closed -= x)
             .Subscribe(_ => viewModel.Dispose())
             .DisposeWith(disposable);
-        
+
         if (!string.IsNullOrWhiteSpace(options.IconSource))
         {
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
