@@ -25,6 +25,14 @@ public class DialogService : IDialogService
         await ShowDialogAsync(viewModel, options);
     }
 
+    public async Task ShowDialogAsync<TViewModel, TInitParameter>(TInitParameter parameter, UiShowDialogOptions options)
+        where TViewModel : IInitializableDialogViewModel<TInitParameter>
+    {
+        var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
+        await viewModel.InitializeAsync(parameter);
+        await ShowDialogAsync(viewModel, options);
+    }
+
     public async Task ShowDialogAsync<TViewModel>(TViewModel viewModel, UiShowDialogOptions options) where TViewModel : IDialogViewModel
     {
         var disposable = new CompositeDisposable();
