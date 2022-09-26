@@ -4,6 +4,7 @@ using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.ReactiveUI;
 using Dock.Model.ReactiveUI.Controls;
+using Quinta.Extensions;
 
 namespace Quinta.DockFactories;
 
@@ -15,10 +16,10 @@ public class DefaultDockFactory : Factory
     public const string Splitter = "Splitter";
     public const string Root = "Root";
 
-    private IRootDock _rootDock;
-    private IDocumentDock _documentDock;
-    private IToolDock _toolDock;
-    
+    private IRootDock? _rootDock;
+    private IDocumentDock? _documentDock;
+    private IToolDock? _toolDock;
+
     private readonly object _context;
 
     public DefaultDockFactory(object context)
@@ -40,7 +41,7 @@ public class DefaultDockFactory : Factory
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible
         };
-        
+
         var documentDock = new DocumentDock
         {
             Id = Documents,
@@ -50,7 +51,7 @@ public class DefaultDockFactory : Factory
             ActiveDockable = null,
             VisibleDockables = CreateList<IDockable>()
         };
-        
+
         var mainLayout = new ProportionalDock
         {
             Id = MainLayout,
@@ -72,7 +73,7 @@ public class DefaultDockFactory : Factory
         };
 
         var root = CreateRootDock();
-        
+
         root.Id = Root;
         root.Title = Root;
         root.ActiveDockable = mainLayout;
@@ -88,7 +89,7 @@ public class DefaultDockFactory : Factory
 
     public override void InitLayout(IDockable layout)
     {
-         ContextLocator = new Dictionary<string, Func<object>>
+        ContextLocator = new Dictionary<string, Func<object>>
         {
             [Tools] = () => _context,
             [Documents] = () => _context,
@@ -96,6 +97,10 @@ public class DefaultDockFactory : Factory
             [Root] = () => _context,
 
         };
+
+        _rootDock ??= (IRootDock?)layout;
+        _toolDock ??= (IToolDock?)_rootDock!.FindById(Tools);
+        _documentDock ??= (IDocumentDock?)_rootDock!.FindById(Documents);
 
         DockableLocator = new Dictionary<string, Func<IDockable?>>
         {

@@ -5,7 +5,10 @@ using Avalonia.Controls;
 using Avalonia.Platform;
 using Dock.Model.Core;
 using Dock.Model.Core.Events;
+using Dock.Model.ReactiveUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Quinta.DockFactories;
 using Quinta.Extensions;
 using Quinta.Interfaces;
@@ -18,6 +21,29 @@ namespace Quinta;
 
 public class Shell : ReactiveObject, IShell
 {
+    private class DependencyInjectionContractResolver : DefaultContractResolver
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public DependencyInjectionContractResolver(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        protected override JsonObjectContract CreateObjectContract(Type objectType)
+        {
+            var isService = _serviceProvider.GetService<IServiceProviderIsService>();
+            if (isService is not null && isService.IsService(objectType))
+            {
+                var contract = base.CreateObjectContract(objectType);
+                contract.DefaultCreator = () => _serviceProvider.GetService(objectType)!;
+                return contract;
+            }
+
+            return base.CreateObjectContract(objectType);
+        }
+    }
+
     public Shell(IMainMenuService mainMenuService, IDialogService dialogService)
     {
         MainMenuService = mainMenuService;
@@ -25,17 +51,35 @@ public class Shell : ReactiveObject, IShell
     }
 
     [Reactive] public string Title { get; set; }
+
     [Reactive] public WindowIcon? Icon { get; set; }
+
     [Reactive] public IViewModel? ActiveViewModel { get; set; }
+
     public IServiceProvider ServiceProvider { get; set; }
+
     public IFactory DockFactory { get; set; }
+
     [Reactive] public IDock Layout { get; set; }
+
     public Window MainWindow { get; set; }
+
     public IMainMenuService MainMenuService { get; }
+
     public IDialogService DialogService { get; }
 
     public void ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class
     {
+        JsonSerializerSettings jsonSettings = new()
+        {
+            Formatting = Formatting.Indented,
+            TypeNameHandling = TypeNameHandling.Objects,
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new DependencyInjectionContractResolver(ServiceProvider)
+        };
+
         Title = options?.Title ?? "";
         if (options?.IconSource is not null)
         {
@@ -46,6 +90,17 @@ public class Shell : ReactiveObject, IShell
 
         var window = ServiceProvider.GetRequiredService<TStartWindow>();
         MainWindow = window as Window ?? throw new InvalidCastException($"{window.GetType()} is not a window");
+        MainWindow.Closing += (_, _) =>
+        {
+            if (!string.IsNullOrWhiteSpace(options?.LayoutFilePath))
+            {
+                var json = JsonConvert.SerializeObject(Layout, jsonSettings);
+                if (!string.IsNullOrEmpty(json))
+                {
+                    File.WriteAllText(options.LayoutFilePath, json);
+                }
+            }
+        };
 
         DockFactory = options?.DockFactory ?? new DefaultDockFactory(MainWindow.DataContext!);
         Observable
@@ -57,8 +112,8 @@ public class Shell : ReactiveObject, IShell
                 if (x.EventArgs.Dockable is IViewModel vm)
                     ActiveViewModel = vm;
             });
-        Layout = DockFactory.CreateLayout() ?? throw new InvalidOperationException();
-        DockFactory.InitLayout(Layout);
+
+        InitLayout(options?.LayoutFilePath, jsonSettings);
     }
 
     public void ShowView<TViewModel>(ViewRequest? viewRequest, UiShowOptions? options)
@@ -93,6 +148,7 @@ public class Shell : ReactiveObject, IShell
         if (dockable is null)
         {
             var viewModel = viewModelFactory(ServiceProvider);
+            viewModel.Id = viewRequest?.ViewId ?? "";
             if (options != null && viewModel is IConfigurableViewModel configurable)
                 configurable.Configure(options);
 
@@ -117,5 +173,29 @@ public class Shell : ReactiveObject, IShell
         vmb.Close
             .Subscribe(_ => DockFactory.CloseDockable(vmb))
             .DisposeWith(vmb.Disposables);
+    }
+
+    private void InitLayout(string? layoutFilePath, JsonSerializerSettings jsonSettings)
+    {
+        RootDock? rootDock = default;
+        if (!string.IsNullOrWhiteSpace(layoutFilePath) && File.Exists(layoutFilePath))
+        {
+            var json = File.ReadAllText(layoutFilePath);
+            if (!string.IsNullOrWhiteSpace(json))
+            {
+                rootDock = JsonConvert.DeserializeObject<RootDock?>(json, jsonSettings);
+                if (rootDock is not null)
+                {
+                    Layout = rootDock;
+                }
+            }
+        }
+
+        if (rootDock is null)
+        {
+            Layout = DockFactory.CreateLayout() ?? throw new InvalidOperationException();
+        }
+
+        DockFactory.InitLayout(Layout);
     }
 }
