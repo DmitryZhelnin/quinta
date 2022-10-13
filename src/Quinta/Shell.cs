@@ -185,14 +185,22 @@ public class Shell : ReactiveObject, IShell
         RootDock? rootDock = default;
         if (!string.IsNullOrWhiteSpace(layoutFilePath) && File.Exists(layoutFilePath))
         {
-            var json = File.ReadAllText(layoutFilePath);
-            if (!string.IsNullOrWhiteSpace(json))
+            try
             {
-                rootDock = JsonConvert.DeserializeObject<RootDock?>(json, jsonSettings);
-                if (rootDock is not null)
+                var json = File.ReadAllText(layoutFilePath);
+                if (!string.IsNullOrWhiteSpace(json))
                 {
-                    Layout = rootDock;
+
+                    rootDock = JsonConvert.DeserializeObject<RootDock?>(json, jsonSettings);
+                    if (rootDock is not null)
+                    {
+                        Layout = rootDock;
+                    }
                 }
+            }
+            catch
+            {
+                rootDock = null;
             }
         }
 
