@@ -158,6 +158,11 @@ public class Shell : ReactiveObject, IShell
             // InitializeView(view, viewRequest);
             dockable = viewModel;
         }
+        else
+        {
+            if (options != null && dockable is IConfigurableViewModel configurable)
+                configurable.Configure(options);
+        }
 
         DockFactory.SetActiveDockable(dockable);
         DockFactory.SetFocusedDockable(container, dockable);
