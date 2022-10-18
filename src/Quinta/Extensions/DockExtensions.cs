@@ -1,4 +1,5 @@
 ﻿using Dock.Model.Core;
+using Quinta.ViewModels;
 
 namespace Quinta.Extensions;
 
@@ -34,5 +35,27 @@ public static class DockExtensions
         }
 
         return null;
+    }
+
+    public static IEnumerable<DocumentViewModelBase> GetAllDocuments(this IDock dock)
+    {
+        if (dock.VisibleDockables != null)
+        {
+            foreach (var dockable in dock.VisibleDockables)
+            {
+                if (dockable is DocumentViewModelBase document)
+                {
+                    yield return document;
+                }
+
+                if (dockable is IDock childDock)
+                {
+                    foreach (var childDocument in childDock.GetAllDocuments())
+                    {
+                        yield return childDocument;
+                    }
+                }
+            }
+        }
     }
 }

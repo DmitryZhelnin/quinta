@@ -94,8 +94,7 @@ public class DefaultDockFactory : Factory
             [Tools] = () => _context,
             [Documents] = () => _context,
             [MainLayout] = () => _context,
-            [Root] = () => _context,
-
+            [Root] = () => _context
         };
 
         _rootDock ??= (IRootDock?)layout;

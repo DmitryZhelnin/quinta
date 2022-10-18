@@ -1,5 +1,7 @@
-﻿using System.Reactive.Disposables;
+﻿using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
@@ -30,6 +32,15 @@ public class Shell : ReactiveObject, IShell
             _serviceProvider = serviceProvider;
         }
 
+        public override JsonContract ResolveContract(Type type)
+        {
+            if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IList<>))
+            {
+                return base.ResolveContract(typeof(ObservableCollection<>).MakeGenericType(type.GenericTypeArguments[0]));
+            }
+            return base.ResolveContract(type);
+        }
+
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             var isService = _serviceProvider.GetService<IServiceProviderIsService>();
@@ -56,6 +67,8 @@ public class Shell : ReactiveObject, IShell
 
     [Reactive] public IViewModel? ActiveViewModel { get; set; }
 
+    public IEnumerable<DocumentViewModelBase> Documents => Layout.GetAllDocuments();
+
     public IServiceProvider ServiceProvider { get; set; }
 
     public IFactory DockFactory { get; set; }
@@ -68,7 +81,7 @@ public class Shell : ReactiveObject, IShell
 
     public IDialogService DialogService { get; }
 
-    public void ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class
+    public bool ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class
     {
         JsonSerializerSettings jsonSettings = new()
         {
@@ -113,28 +126,58 @@ public class Shell : ReactiveObject, IShell
                     ActiveViewModel = vm;
             });
 
-        InitLayout(options?.LayoutFilePath, jsonSettings);
+        var wasLoaded = InitLayout(options?.LayoutFilePath, jsonSettings);
+        if (wasLoaded)
+        {
+            foreach (var document in Documents)
+            {
+                AddClosingByCommand(document);
+            }
+        }
+
+        return wasLoaded;
     }
 
-    public void ShowView<TViewModel>(ViewRequest? viewRequest, UiShowOptions? options)
+    public async Task ShowView<TViewModel>(ViewRequest? viewRequest, UiShowOptions? options = null)
         where TViewModel : class, IViewModel
     {
-        ShowInContainer(DefaultDockFactory.Documents,
-            container => container.GetRequiredService<TViewModel>(),
-            viewRequest,
-            options);
+        Task<IViewModel> ViewModelFactory(IServiceProvider container)
+        {
+            var viewModel = container.GetRequiredService<TViewModel>();
+            return Task.FromResult((IViewModel)viewModel);
+        }
+
+        await ShowInContainer(DefaultDockFactory.Documents, ViewModelFactory, viewRequest, options);
     }
 
-    public void ShowTool<TViewModel>(ViewRequest? viewRequest = null, UiShowOptions? options = null)
+    public async Task ShowView<TViewModel, TInitParameter>(TInitParameter initParameter,
+        ViewRequest? viewRequest = null,
+        UiShowOptions? options = null)
+        where TViewModel : class, IViewModel, IInitializableViewModel<TInitParameter>
+    {
+        async Task<IViewModel> ViewModelFactory(IServiceProvider container)
+        {
+            var viewModel = container.GetRequiredService<TViewModel>();
+            await viewModel.InitializeAsync(initParameter);
+            return viewModel;
+        }
+
+        await ShowInContainer(DefaultDockFactory.Documents, ViewModelFactory, viewRequest, options);
+    }
+
+    public async Task ShowTool<TViewModel>(ViewRequest? viewRequest = null, UiShowOptions? options = null)
         where TViewModel : class, IViewModel
     {
-        ShowInContainer(DefaultDockFactory.Tools,
-            container => container.GetRequiredService<TViewModel>(),
-            viewRequest,
-            options);
+        Task<IViewModel> ViewModelFactory(IServiceProvider container)
+        {
+            var viewModel = container.GetRequiredService<TViewModel>();
+            return Task.FromResult((IViewModel)viewModel);
+        }
+
+        await ShowInContainer(DefaultDockFactory.Tools, ViewModelFactory, viewRequest, options);
     }
 
-    public void ShowInContainer(string containerName, Func<IServiceProvider, IViewModel> viewModelFactory,
+    public async Task ShowInContainer(string containerName, Func<IServiceProvider, Task<IViewModel>> viewModelFactory,
         ViewRequest? viewRequest = null, UiShowOptions? options = null)
     {
         var container = DockFactory.GetDockable<IDock>(containerName);
@@ -147,7 +190,7 @@ public class Shell : ReactiveObject, IShell
 
         if (dockable is null)
         {
-            var viewModel = viewModelFactory(ServiceProvider);
+            var viewModel = await viewModelFactory(ServiceProvider);
             viewModel.Id = viewRequest?.ViewId ?? "";
             if (options != null && viewModel is IConfigurableViewModel configurable)
                 configurable.Configure(options);
@@ -155,7 +198,6 @@ public class Shell : ReactiveObject, IShell
             DockFactory.AddDockable(container, viewModel);
 
             AddClosingByCommand(viewModel);
-            // InitializeView(view, viewRequest);
             dockable = viewModel;
         }
         else
@@ -180,8 +222,9 @@ public class Shell : ReactiveObject, IShell
             .DisposeWith(vmb.Disposables);
     }
 
-    private void InitLayout(string? layoutFilePath, JsonSerializerSettings jsonSettings)
+    private bool InitLayout(string? layoutFilePath, JsonSerializerSettings jsonSettings)
     {
+        var wasLoaded = false;
         RootDock? rootDock = default;
         if (!string.IsNullOrWhiteSpace(layoutFilePath) && File.Exists(layoutFilePath))
         {
@@ -190,11 +233,11 @@ public class Shell : ReactiveObject, IShell
                 var json = File.ReadAllText(layoutFilePath);
                 if (!string.IsNullOrWhiteSpace(json))
                 {
-
                     rootDock = JsonConvert.DeserializeObject<RootDock?>(json, jsonSettings);
                     if (rootDock is not null)
                     {
                         Layout = rootDock;
+                        wasLoaded = true;
                     }
                 }
             }
@@ -210,5 +253,6 @@ public class Shell : ReactiveObject, IShell
         }
 
         DockFactory.InitLayout(Layout);
+        return wasLoaded;
     }
 }
