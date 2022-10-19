@@ -1,12 +1,40 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mainMenu="clr-namespace:Quinta.MainMenu">
+        xmlns:mainMenu="clr-namespace:Quinta.MainMenu"
+        xmlns:viewModels="clr-namespace:Quinta.ViewModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:quinta="clr-namespace:Quinta"
+        xmlns:controls="clr-namespace:Dock.Model.Controls;assembly=Dock.Model">
     <StyleInclude Source="avares://Dock.Avalonia/Themes/DockFluentTheme.axaml" />
+    <StyleInclude Source="avares://Material.Icons.Avalonia/App.xaml" />
     <Style Selector="MenuItem" x:DataType="mainMenu:MenuItemViewModel">
         <Setter Property="Header" Value="{Binding Header}" />
         <Setter Property="Items" Value="{Binding Items}" />
         <Setter Property="Command" Value="{Binding Command}" />
         <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
         <Setter Property="InputGesture" Value="{Binding InputGesture}" />
+    </Style>
+    <Style Selector="DocumentControl">
+        <Setter Property="HeaderTemplate">
+            <quinta:DocumentHeaderTemplateSelector>
+                <DataTemplate x:Key="viewModels:DocumentWithIconViewModelBase" DataType="viewModels:DocumentWithIconViewModelBase">
+                    <StackPanel Orientation="Horizontal">
+                        <avalonia:MaterialIcon
+                            Width="16"
+                            Height="16"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding TitleIcon, Converter={x:Static ObjectConverters.IsNotNull}}"
+                            Kind="{Binding TitleIcon}" />
+                        <TextBlock Text="{Binding Title}"
+                                   VerticalAlignment="Center"
+                                   Padding="2" />
+                    </StackPanel>
+                </DataTemplate>
+                <DataTemplate x:Key="controls:IDocument" DataType="controls:IDocument">
+                    <TextBlock Text="{Binding Title}" Padding="2" />
+                </DataTemplate>
+            </quinta:DocumentHeaderTemplateSelector>
+        </Setter>
     </Style>
 </Styles>
