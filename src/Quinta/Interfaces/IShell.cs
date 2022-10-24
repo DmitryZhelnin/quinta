@@ -29,7 +29,7 @@ public interface IShell
 
     bool ShowStartView<TStartWindow>(UiShowStartWindowOptions? options) where TStartWindow : class;
 
-    Task ShowView<TViewModel>(ViewRequest? viewRequest = null,
+    Task<TViewModel> ShowView<TViewModel>(ViewRequest? viewRequest = null,
         UiShowOptions? options = null)
         where TViewModel : class, IViewModel;
 
@@ -42,7 +42,7 @@ public interface IShell
         UiShowOptions? options = null)
         where TViewModel : class, IViewModel;
 
-    Task ShowInContainer(
+    Task<IViewModel> ShowInContainer(
         string containerName,
         Func<IServiceProvider, Task<IViewModel>> viewModelFactory,
         ViewRequest? viewRequest = null,

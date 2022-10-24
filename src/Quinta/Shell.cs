@@ -138,7 +138,7 @@ public class Shell : ReactiveObject, IShell
         return wasLoaded;
     }
 
-    public async Task ShowView<TViewModel>(ViewRequest? viewRequest, UiShowOptions? options = null)
+    public async Task<TViewModel> ShowView<TViewModel>(ViewRequest? viewRequest, UiShowOptions? options = null)
         where TViewModel : class, IViewModel
     {
         Task<IViewModel> ViewModelFactory(IServiceProvider container)
@@ -147,7 +147,7 @@ public class Shell : ReactiveObject, IShell
             return Task.FromResult((IViewModel)viewModel);
         }
 
-        await ShowInContainer(DefaultDockFactory.Documents, ViewModelFactory, viewRequest, options);
+        return (TViewModel)await ShowInContainer(DefaultDockFactory.Documents, ViewModelFactory, viewRequest, options);
     }
 
     public async Task ShowView<TViewModel, TInitParameter>(TInitParameter initParameter,
@@ -177,7 +177,7 @@ public class Shell : ReactiveObject, IShell
         await ShowInContainer(DefaultDockFactory.Tools, ViewModelFactory, viewRequest, options);
     }
 
-    public async Task ShowInContainer(string containerName, Func<IServiceProvider, Task<IViewModel>> viewModelFactory,
+    public async Task<IViewModel> ShowInContainer(string containerName, Func<IServiceProvider, Task<IViewModel>> viewModelFactory,
         ViewRequest? viewRequest = null, UiShowOptions? options = null)
     {
         var container = DockFactory.GetDockable<IDock>(containerName);
@@ -208,6 +208,7 @@ public class Shell : ReactiveObject, IShell
 
         DockFactory.SetActiveDockable(dockable);
         DockFactory.SetFocusedDockable(container, dockable);
+        return (dockable as IViewModel)!;
     }
 
     private void AddClosingByCommand(IViewModel viewModel)
