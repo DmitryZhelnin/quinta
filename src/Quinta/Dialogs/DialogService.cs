@@ -34,7 +34,7 @@ public class DialogService : IDialogService
     {
         var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
         await viewModel.InitializeAsync(parameter);
-        await ShowDialogAsync(viewModel, options);
+        await ShowDialogAsync(viewModel, options, callback);
     }
 
     public async Task ShowDialogAsync<TViewModel, TInitParameter>(
@@ -44,7 +44,7 @@ public class DialogService : IDialogService
         Action<TViewModel>? callback = null) where TViewModel : IInitializableDialogViewModel<TInitParameter>
     {
         await viewModel.InitializeAsync(parameter);
-        await ShowDialogAsync(viewModel, options);
+        await ShowDialogAsync(viewModel, options, callback);
     }
 
     public async Task ShowDialogAsync<TViewModel>(
