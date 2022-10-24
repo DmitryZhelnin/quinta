@@ -19,28 +19,38 @@ public class DialogService : IDialogService
         _serviceProvider = serviceProvider;
     }
 
-    public async Task ShowDialogAsync<TViewModel>(UiShowDialogOptions options) where TViewModel : IDialogViewModel
+    public async Task ShowDialogAsync<TViewModel>(
+        UiShowDialogOptions options,
+        Action<TViewModel>? callback = null) where TViewModel : IDialogViewModel
     {
         var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
-        await ShowDialogAsync(viewModel, options);
+        await ShowDialogAsync(viewModel, options, callback);
     }
 
-    public async Task ShowDialogAsync<TViewModel, TInitParameter>(TInitParameter parameter, UiShowDialogOptions options)
-        where TViewModel : IInitializableDialogViewModel<TInitParameter>
+    public async Task ShowDialogAsync<TViewModel, TInitParameter>(
+        TInitParameter parameter,
+        UiShowDialogOptions options,
+        Action<TViewModel>? callback = null) where TViewModel : IInitializableDialogViewModel<TInitParameter>
     {
         var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
         await viewModel.InitializeAsync(parameter);
         await ShowDialogAsync(viewModel, options);
     }
 
-    public async Task ShowDialogAsync<TViewModel, TInitParameter>(TViewModel viewModel, TInitParameter parameter,
-        UiShowDialogOptions options) where TViewModel : IInitializableDialogViewModel<TInitParameter>
+    public async Task ShowDialogAsync<TViewModel, TInitParameter>(
+        TViewModel viewModel,
+        TInitParameter parameter,
+        UiShowDialogOptions options,
+        Action<TViewModel>? callback = null) where TViewModel : IInitializableDialogViewModel<TInitParameter>
     {
         await viewModel.InitializeAsync(parameter);
         await ShowDialogAsync(viewModel, options);
     }
 
-    public async Task ShowDialogAsync<TViewModel>(TViewModel viewModel, UiShowDialogOptions options) where TViewModel : IDialogViewModel
+    public async Task ShowDialogAsync<TViewModel>(
+        TViewModel viewModel,
+        UiShowDialogOptions options,
+        Action<TViewModel>? callback = null) where TViewModel : IDialogViewModel
     {
         var disposable = new CompositeDisposable();
         var dialog = new DialogWindow
@@ -63,7 +73,11 @@ public class DialogService : IDialogService
 
         Observable
             .FromEventPattern(x => dialog.Closed += x, x => dialog.Closed -= x)
-            .Subscribe(_ => viewModel.Dispose())
+            .Subscribe(_ =>
+            {
+                callback?.Invoke(viewModel);
+                viewModel.Dispose();
+            })
             .DisposeWith(disposable);
 
         if (!string.IsNullOrWhiteSpace(options.IconSource))
