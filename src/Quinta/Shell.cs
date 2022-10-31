@@ -180,16 +180,20 @@ public class Shell : ReactiveObject, IShell
     public async Task<IViewModel> ShowInContainer(string containerName, Func<IServiceProvider, Task<IViewModel>> viewModelFactory,
         ViewRequest? viewRequest = null, UiShowOptions? options = null)
     {
-        var container = DockFactory.GetDockable<IDock>(containerName);
-        if (container is null)
+        IDockable? dockable = null;
+        if (viewRequest?.ViewId is not null)
         {
-            throw new ArgumentException($"Container {containerName} not found");
+            dockable = Layout.FindById(viewRequest.ViewId);
         }
-
-        var dockable = container.FindByViewRequest(viewRequest);
 
         if (dockable is null)
         {
+            var container = DockFactory.GetDockable<IDock>(containerName);
+            if (container is null)
+            {
+                throw new ArgumentException($"Container {containerName} not found");
+            }
+
             var viewModel = await viewModelFactory(ServiceProvider);
             viewModel.Id = viewRequest?.ViewId ?? "";
             if (options != null && viewModel is IConfigurableViewModel configurable)
@@ -207,7 +211,11 @@ public class Shell : ReactiveObject, IShell
         }
 
         DockFactory.SetActiveDockable(dockable);
-        DockFactory.SetFocusedDockable(container, dockable);
+        if (dockable.Owner is IDock owner)
+        {
+            DockFactory.SetFocusedDockable(owner, dockable);
+        }
+
         return (dockable as IViewModel)!;
     }
 

@@ -5,13 +5,6 @@ namespace Quinta.Extensions;
 
 public static class DockExtensions
 {
-    public static IDockable? FindByViewRequest(this IDock dock, ViewRequest? request)
-    {
-        return request is null
-            ? null
-            : dock.VisibleDockables?.FirstOrDefault(x => x.Id == request.ViewId);
-    }
-
     public static IDockable? FindById(this IDock dock, string id)
     {
         if (dock.VisibleDockables != null)
